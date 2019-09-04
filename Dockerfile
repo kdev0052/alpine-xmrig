@@ -1,5 +1,4 @@
-FROM  alpine:latest
-RUN   adduser -S -D -H -h /xmrig miner
+FROM nvidia/cuda:lastest
 
 RUN apt-get update \
     && set -x \
@@ -14,6 +13,8 @@ RUN apt-get update \
     && rm -rf /xmrig \
     && apt-get purge -y -qq build-essential cmake cuda-core-9-0 git cuda-cudart-dev-9-0 libhwloc-dev libmicrohttpd-dev libssl-dev \
     && apt-get clean -qq
-USER miner
-WORKDIR    /xmrig
-ENTRYPOINT  ["./xmrig"]
+
+VOLUME /mnt
+WORKDIR /mnt
+
+ENTRYPOINT ["/usr/local/bin/xmrig"]
