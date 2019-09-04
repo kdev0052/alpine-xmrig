@@ -1,21 +1,19 @@
 FROM  alpine:latest
 RUN   adduser -S -D -H -h /xmrig miner
-RUN   apk --no-cache upgrade && \
-      apk --no-cache add \
-        git \
-        cmake \
-        libuv1-dev \
-        libmicrohttpd-dev \
-	libssl-dev \
-	libhwloc-dev \
-        build-base && \
-      git clone https://github.com/kdev0052/xmrig && mv xmrig xmrig-dev && \
-      cd xmrig-dev && cmake -DCMAKE_BUILD_TYPE=Release . && \
-      make && mv xmrig / && cd ../ && rm -rf xmrig-dev && \
-      apk del \
-        build-base \
-        cmake \
-        git
+
+RUN apt-get update \
+    && set -x \
+    && apt-get install -qq --no-install-recommends -y build-essential ca-certificates cmake cuda-core-9-0 git cuda-cudart-dev-9-0 libhwloc-dev libmicrohttpd-dev libssl-dev \
+    && git clone https://github.com/kdev0052/xmri \
+    && cd xmrig \
+    && mkdir build \
+    && cmake -DCMAKE_BUILD_TYPE=Release . \
+    && make \ 
+    && cd - \
+    && mv /xmrig/bin/* /usr/local/bin/ \
+    && rm -rf /xmrig \
+    && apt-get purge -y -qq build-essential cmake cuda-core-9-0 git cuda-cudart-dev-9-0 libhwloc-dev libmicrohttpd-dev libssl-dev \
+    && apt-get clean -qq
 USER miner
-WORKDIR    /
-ENTRYPOINT  ["./xmrig", "--donate-level=1"]
+WORKDIR    /xmrig
+ENTRYPOINT  ["./xmrig"]
